@@ -108,7 +108,7 @@ impl From<Reject> for Packet {
 #[derive(PartialEq, Clone)]
 pub struct Prepare {
     buffer: BytesMut,
-    content_offset: usize,
+    pub content_offset: usize,
     destination: Address,
     amount: u64,
     expires_at: SystemTime,
