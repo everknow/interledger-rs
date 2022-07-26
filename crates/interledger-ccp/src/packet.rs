@@ -188,7 +188,7 @@ impl RouteControlRequest {
         }
     }
 
-    fn try_from_data(mut data: &[u8]) -> Result<Self, CcpPacketError> {
+    pub fn try_from_data(mut data: &[u8]) -> Result<Self, CcpPacketError> {
         const MIN_LEN: usize = Mode::LEN
             + ROUTING_TABLE_ID_LEN
             // u32
@@ -470,7 +470,7 @@ impl RouteUpdateRequest {
         }
     }
 
-    fn try_from_data(mut data: &[u8]) -> Result<Self, CcpPacketError> {
+    pub fn try_from_data(mut data: &[u8]) -> Result<Self, CcpPacketError> {
         const HOLD_DOWN_TIME_LEN: usize = 4;
 
         const MIN_LEN: usize = ROUTING_TABLE_ID_LEN
