@@ -220,15 +220,7 @@ impl RouteControlRequest {
     }
 
     pub fn to_prepare(&self) -> Prepare {
-        let mut data = Vec::new();
-
-        data.put_u8(self.mode as u8);
-        data.put_slice(&self.last_known_routing_table_id);
-        data.put_u32(self.last_known_epoch);
-        data.put_var_uint(self.features.len() as u64);
-        for feature in self.features.iter() {
-            data.put_var_octet_string(feature.as_bytes());
-        }
+        let data = self.to_data();
 
         PrepareBuilder {
             destination: CCP_CONTROL_DESTINATION.clone(),
@@ -239,6 +231,20 @@ impl RouteControlRequest {
         }
         .build()
     }
+
+    pub fn to_data(&self) -> Vec<u8> {
+       let mut data = Vec::new();
+
+        data.put_u8(self.mode as u8);
+        data.put_slice(&self.last_known_routing_table_id);
+        data.put_u32(self.last_known_epoch);
+        data.put_var_uint(self.features.len() as u64);
+        for feature in self.features.iter() {
+            data.put_var_octet_string(feature.as_bytes());
+        } 
+
+        return data;
+    } 
 }
 
 impl From<RouteControlRequest> for Prepare {
@@ -521,6 +527,19 @@ impl RouteUpdateRequest {
     }
 
     pub fn to_prepare(&self) -> Prepare {
+        let data = self.to_data(); 
+
+        PrepareBuilder {
+            destination: CCP_UPDATE_DESTINATION.clone(),
+            amount: 0,
+            expires_at: SystemTime::now() + Duration::from_millis(PEER_PROTOCOL_EXPIRY_DURATION),
+            execution_condition: &PEER_PROTOCOL_CONDITION,
+            data: &data[..],
+        }
+        .build()
+    }
+
+    pub fn to_data(&self) -> Vec<u8> {
         let mut data = Vec::new();
         data.put(&self.routing_table_id[..]);
         data.put_u32(self.current_epoch_index);
@@ -537,14 +556,7 @@ impl RouteUpdateRequest {
             data.put_var_octet_string(route.as_bytes());
         }
 
-        PrepareBuilder {
-            destination: CCP_UPDATE_DESTINATION.clone(),
-            amount: 0,
-            expires_at: SystemTime::now() + Duration::from_millis(PEER_PROTOCOL_EXPIRY_DURATION),
-            execution_condition: &PEER_PROTOCOL_CONDITION,
-            data: &data[..],
-        }
-        .build()
+        return data;
     }
 }
 
